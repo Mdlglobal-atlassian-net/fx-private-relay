@@ -8,7 +8,7 @@
 
 {% get_social_accounts request.user as accounts %}
 
-<main id="profile-main" class="container bg-light dashboard-container {% if relay_addresses|length == 0 %} env-bg {% endif %} container" data-api-token="{{ user.profile_set.first.api_token }}">
+<main id="profile-main" class="container bg-light dashboard-container container" data-api-token="{{ user.profile_set.first.api_token }}">
   <div class="main-list flx flx-col jst-cntr">
     {% if messages %}
       <div class="messages profile-messages hidden">
@@ -23,7 +23,7 @@
       </div>
     {% endif %}
 
-    {% if relay_addresses|length == 0 %}
+    <!-- {% if relay_addresses|length == 0 %}
       <div class="create-first-alias flx flx-col al-cntr jst-cntr appear-smoothly hidden">
         <p class="ff-Met no-active-aliases text-center">You have no email aliases.</p>
         <form action="/emails/" method="POST">
@@ -43,8 +43,8 @@
         </div>
         <button class="text-link continue-without-addon grey-pseudo-styles">Continue without the add-on</button>
       </div>
-    {% endif %}
-      <div class="alias-list {% if relay_addresses|length == 0 %} no-aliases {% endif %}">
+    {% endif %} -->
+      <div class="alias-list">
         <div class="dashboard-greeting">
           <span class="dashboard-greeting-message">Welcome, <span class="demi">{{ request.user.email }}</span>!</span>
         </div>
