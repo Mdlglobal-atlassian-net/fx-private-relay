@@ -1041,16 +1041,14 @@ table {
 .appear-smoothly {
   animation: appearSmoothly 0.2s ease;
 }
-
-.invite-only-hl,
-.get-relay-addon,
-.no-active-aliases {
-  font-size: 1.5rem;
+/*
+.invite-only-hl {
+  font-size: 2rem;
   line-height: 1.5;
   max-width: 460px;
-}
+} */
 
-.get-relay-addon::before,
+/* .get-relay-addon::before,
 .no-active-aliases::before {
   height: 100px;
   width: 100px;
@@ -1059,9 +1057,9 @@ table {
   background-repeat: no-repeat;
   display: block;
   margin: auto;
-}
+} */
 
-.continue-without-addon {
+/* .continue-without-addon {
   padding: 4px 8px;;
   font-size: 1rem;
   outline: none;
@@ -1069,7 +1067,7 @@ table {
   margin-top: 24px;
   font-weight: 300;
   text-decoration: underline;
-}
+} */
 
 /* end no aliases screen */
 
@@ -1366,59 +1364,55 @@ table {
 /* auth error */
 
 .auth-error-wrapper {
-  line-height: 1.4;
-  border-radius: 8px;
-  padding: 2px;
-  margin: 5vh auto auto auto;
+  padding: 4rem 2rem;
+  width: 100%;
+  max-width: 600px;
 }
 
 /* end auth error */
 
 /* join waitlist */
 
-.invite-only-wrapper {
-  border-radius: 17px;
-  padding: 2px;
-  box-shadow: var(--dropShadowDark);
-}
-
 .invite-only-content {
-  max-width: 700px;
-  padding: 4rem;
-  width: 100%;
-  background-color: #302e5b;
-  border-radius: 16px;
+  line-height: 1.4;
+  margin: auto auto auto 0;
+  color: var(--grey10);
   position: relative;
+  justify-content: flex-start;
 }
 
 .invite-only-hl {
-  margin: auto auto 20px auto;
+  font-weight: 700;
+  margin: 0 auto 4rem auto;
+  font-size: 3rem;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 1);
+}
+
+.invite-only-text {
+  font-size: 1.15rem;
+  margin: 0 auto 2rem auto;
 }
 
 .user-avatar {
-  min-height: 80px; /* prevents jumping while loading */
-  max-width: 80px;
-  margin: 20px auto;
+  min-height: 32px; /* prevents jumping while loading */
+  max-width: 32px;
 }
 
 .join-waitlist-submit,
 .join-waitlist-form {
   width: 100%;
-  margin: auto;
+  margin: auto auto auto 0;
 }
 
-.join-waitlist-submit {
-  min-height: 48px;
-  max-width: 260px;
-  font-size: 17px;
-  border: none;
-  margin: 2px;
-  border-radius: 8px;
+.avatar-email-wrapper {
+  margin: auto auto 1.5rem 0;
 }
 
 .waitlist-user-email {
-  font-weight: 500;
-  margin: auto auto 20px auto;
+  font-weight: 600;
+  color: var(--grey20);
+  margin: auto auto auto 12px;
 }
 
 .invite-only-wrapper::after {
@@ -1427,7 +1421,6 @@ table {
   content: "";
   display: block;
   position: absolute;
-  background-color: #302e5b;
   opacity: 0;
   pointer-events: none;
   transition: all 0.2s ease;
@@ -1463,18 +1456,47 @@ table {
   opacity: 1;
 }
 
-.waitlist-confirmation-hl::before {
+.zap-16 {
+  position: relative;
+  display: inline-block;
+}
+
+.zap-16::after {
+  height: 11px;
+  display: block;
+  background: url("/static/images/zap-16.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  content: "";
+  position: absolute;
+  bottom: -3;
+  left: 0;
+  right: 0;
+}
+
+.waitlist-confirmation-hl {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1rem auto 1.15rem 0;
+}
+
+.green-check {
+  align-items: flex-start;
+}
+
+.green-check::before {
   content: "";
   display: block;
   background-color: #2ac3a2;
-  border: 3px solid #3fe1b0;
+  border: 2px solid #3fe1b0;
   background-image: url("/static/images/white-check.svg");
-  background-size: 40px;
+  background-size: 20px;
   background-repeat: no-repeat;
   background-position: center center;
-  height: 60px;
-  width: 60px;
-  margin: auto auto 16px auto;
+  height: 30px;
+  width: 30px;
+  min-width: 30px;
+  margin: 0 1.5rem auto auto;
   border-radius: 50%;
 }
 
@@ -1501,8 +1523,6 @@ table {
   display: none !important;
 }
 
-/* .column-forwarded, */
-
 .card-enabled .num-forwarded,
 .card-enabled .column-forwarded,
 .num-blocked,
@@ -1522,8 +1542,6 @@ table {
   opacity: .4;
   transition: all 0.2s ease;
 }
-
-/* end join waitlist */
 
 .mobile-menu {
   position: relative;
@@ -1918,19 +1936,18 @@ table {
 
   header {
     border-bottom: none;
-    /* box-shadow: none; */
   }
 
   .step-text {
     padding: 1rem;
   }
 
-  .invite-only-content {
-    padding: 2rem;
+  .waitlist-confirmation-message {
+    font-size: 1rem
   }
 
-  .waitlist-confirmation-message {
-    font-size: 15px;
+  .waitlist-confirmation-hl {
+    margin-top: 2rem;
   }
 
   .modal-content {
@@ -1956,13 +1973,17 @@ table {
     min-width: 100%;
   }
 
-  .invite-only-hl,
-  .no-active-aliases {
-    font-size: 1.2rem;
-  }
-
   .grid {
     flex-direction: column;
+  }
+
+  .invite-only-hl {
+    font-size: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .invite-only-text {
+    font-size: 1rem;
   }
 
   .nested-grid,
