@@ -437,6 +437,10 @@ header {
   }
 }
 
+.header-top {
+  z-index: 2;
+}
+
 .main-list {
   min-height: 50vh;
   max-width: 900px;
@@ -474,6 +478,7 @@ ul {
 
 .header-link:hover,
 .header-link:focus,
+
 .footer-link:hover,
 .footer-link:focus {
   opacity: 0.9;
@@ -749,6 +754,24 @@ table {
   padding: 16px;
 }
 
+.dash-create-new-relay::before {
+  margin: auto;
+}
+
+.dash-create-new-relay.btn-disabled:hover {
+  background-color: var(--grey30);
+}
+
+.dash-create-new-relay {
+  background-color: var(--grey30);
+  background-image: url("/static/images/plus-sign.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 16px;
+}
+
 .dash-create-new-relay:hover {
   background-color: var(--grey40);
 }
@@ -759,14 +782,6 @@ table {
 
 .dash-create-new-relay:active {
   background-color: var(--grey50);
-}
-
-.dash-create-new-relay::before {
-  margin: auto;
-}
-
-.dash-create-new-relay.btn-disabled:hover {
-  background-color: var(--grey30);
 }
 
 .grey-pseudo-styles:hover,

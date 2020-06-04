@@ -1,5 +1,3 @@
-from base64 import b64decode
-import contextlib
 from datetime import datetime
 from email import message_from_string, policy
 from email.utils import parseaddr
@@ -12,7 +10,6 @@ import re
 import boto3
 from botocore.exceptions import ClientError
 from decouple import config
-from socketlabs.injectionapi import SocketLabsClient
 from socketlabs.injectionapi.message.basicmessage import BasicMessage
 from socketlabs.injectionapi.message.emailaddress import EmailAddress
 
@@ -26,6 +23,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
 from .models import DeletedAddress, Profile, RelayAddress
+from .utils import get_socketlabs_client, socketlabs_send
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
@@ -211,11 +209,18 @@ def _sns_notification(json_body):
             status=400
         )
 
-    return _sns_mail(message_json)
+    return _sns_message(message_json)
 
 
-def _sns_mail(message_json):
+def _sns_message(message_json):
     mail = message_json['mail']
+    if 'commonHeaders' not in mail:
+        logger.error('SNS message without commonHeaders')
+        return HttpResponse(
+            'Received SNS notification without commonHeaders.',
+            status=400
+        )
+
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
     local_portion = to_address.split('@')[0]
 
@@ -224,7 +229,7 @@ def _sns_mail(message_json):
         if not relay_address.enabled:
             relay_address.num_blocked += 1
             relay_address.save(update_fields=['num_blocked'])
-            return HttpResponse("Address does not exist")
+            return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
         # TODO?: if sha256 of the address is in DeletedAddresses,
         # create a hard bounce receipt rule
@@ -244,15 +249,11 @@ def _sns_mail(message_json):
 
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders']['subject']
-    email_message = message_from_string(message_json['content'])
-    for message_payload in email_message.get_payload():
-        # TODO: check Content-Transfer-Encoding to see if additional decoding
-        # is needed.
-        # E.g., b64decode(message_payload.get_payload()).decode('utf-8')
-        if message_payload.get_content_type() == 'text/plain':
-            text_content = message_payload.get_payload()
-        if message_payload.get_content_type() == 'text/html':
-            html_content = message_payload.get_payload()
+    email_message = message_from_string(
+        message_json['content'], policy=policy.default
+    )
+
+    text_content, html_content = _get_text_and_html_content(email_message)
 
     ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
     try:
@@ -274,6 +275,17 @@ def _sns_mail(message_json):
         return HttpResponse("SES client error", status=400)
 
     return HttpResponse("Sent email to final recipient.", status=200)
+
+
+def _get_text_and_html_content(email_message):
+    for message_payload in email_message.get_payload():
+        content = message_payload.get_content()
+        if message_payload.get_content_type() == 'text/plain':
+            text_content = content
+        if message_payload.get_content_type() == 'text/html':
+            html_content = content
+
+    return text_content, html_content
 
 
 @csrf_exempt
@@ -356,8 +368,8 @@ def _inbound_logic(json_body):
         relay_from_address, relay_from_display
     )
     sl_message.to_email_address.append(EmailAddress(relay_address.user.email))
-    sl_client = _get_socketlabs_client()
-    response = _socketlabs_send(sl_client, sl_message)
+    sl_client = get_socketlabs_client()
+    response = socketlabs_send(sl_client, sl_message)
     # if _socketlabs_send returns a django HttpResponse return it immediately
     if type(response) == HttpResponse:
         return response
@@ -377,30 +389,3 @@ def _generate_relay_From(original_from_address):
     return relay_from_address, '%s via Firefox Private Relay' % (
         original_from_address
     )
-
-
-def time_if_enabled(name):
-    def timing_decorator(func):
-        def func_wrapper(*args, **kwargs):
-            ctx_manager = (metrics.timer(name) if settings.STATSD_ENABLED
-                           else contextlib.nullcontext())
-            with ctx_manager:
-                return func(*args, **kwargs)
-        return func_wrapper
-    return timing_decorator
-
-
-@time_if_enabled('socketlabs_client')
-def _get_socketlabs_client():
-    return SocketLabsClient(
-        settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
-    )
-
-
-@time_if_enabled('socketlabs_client_send')
-def _socketlabs_send(sl_client, sl_message):
-    try:
-        return sl_client.send(sl_message)
-    except Exception:
-        logger.exception("exception during sl send")
-        return HttpResponse("Internal Server Error", status=500)
